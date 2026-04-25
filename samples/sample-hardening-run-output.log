@@ -1,0 +1,63 @@
+# DUMMY DATA — Sample linux_hardening.sh execution output
+# Host: ubuntu-lab-01 (dummy) | Date: 2026-04-24
+
+[2026-04-24T08:05:01] [INFO] ==========================================
+[2026-04-24T08:05:01] [INFO] Wazuh Linux Hardening Script Started
+[2026-04-24T08:05:01] [INFO] Host: ubuntu-lab-01
+[2026-04-24T08:05:01] [INFO] OS:   Ubuntu 24.04.1 LTS
+[2026-04-24T08:05:01] [INFO] ==========================================
+[2026-04-24T08:05:01] [INFO] Backup created: /var/backups/wazuh-hardening/sysctl.conf.bak_20260424_080501
+[2026-04-24T08:05:01] [INFO] Backup created: /var/backups/wazuh-hardening/fstab.bak_20260424_080501
+[2026-04-24T08:05:01] [INFO] Writing sysctl hardening configuration...
+[2026-04-24T08:05:01] [INFO] --- LH-002: Disable packet redirect sending ---
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable send_redirects (all) — net.ipv4.conf.all.send_redirects set to 0 (was: 1)
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable send_redirects (default) — net.ipv4.conf.default.send_redirects set to 0 (was: 1)
+[2026-04-24T08:05:01] [INFO] --- LH-003: Disable IP forwarding ---
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable IPv4 IP forwarding — net.ipv4.ip_forward set to 0 (was: 1)
+[2026-04-24T08:05:01] [INFO] --- LH-004: Disable source routed packets ---
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable accept_source_route (all) — set to 0 (was: 1)
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable accept_source_route (default) — set to 0 (was: 1)
+[2026-04-24T08:05:01] [INFO] --- LH-005: Disable ICMP redirects ---
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable accept_redirects (all) — set to 0 (was: 1)
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable accept_redirects (default) — set to 0 (was: 1)
+[2026-04-24T08:05:01] [INFO] --- LH-006: Disable secure ICMP redirects ---
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable secure_redirects (all) — set to 0 (was: 1)
+[2026-04-24T08:05:01] [CHANGED]   LH: Disable secure_redirects (default) — set to 0 (was: 1)
+[2026-04-24T08:05:02] [INFO] sysctl config written: /etc/sysctl.d/99-wazuh-hardening.conf
+[2026-04-24T08:05:02] [INFO] sysctl --system applied successfully
+[2026-04-24T08:05:02] [INFO] --- LH-001: /dev/shm mount options ---
+[2026-04-24T08:05:02] [INFO] LH-001: /dev/shm current options: rw,relatime
+[2026-04-24T08:05:02] [INFO] LH-001: Updating /etc/fstab for /dev/shm...
+[2026-04-24T08:05:02] [INFO] LH-001: Added /dev/shm entry to /etc/fstab
+[2026-04-24T08:05:02] [CHANGED] LH-001: /dev/shm remounted with noexec,nodev,nosuid
+[2026-04-24T08:05:02] [INFO] ==========================================
+[2026-04-24T08:05:02] [INFO] Hardening Script Completed
+[2026-04-24T08:05:02] [INFO] Changed:   9
+[2026-04-24T08:05:02] [INFO] Compliant: 0
+[2026-04-24T08:05:02] [INFO] Failed:    0
+[2026-04-24T08:05:02] [INFO] Backup:    /var/backups/wazuh-hardening
+[2026-04-24T08:05:02] [INFO] Log:       /var/log/wazuh-linux-hardening.log
+[2026-04-24T08:05:02] [INFO] Sysctl:    /etc/sysctl.d/99-wazuh-hardening.conf
+[2026-04-24T08:05:02] [INFO] ==========================================
+
+# --- Second run output (idempotency demonstration) ---
+[2026-04-24T20:05:01] [INFO] ==========================================
+[2026-04-24T20:05:01] [INFO] Wazuh Linux Hardening Script Started
+[2026-04-24T20:05:01] [INFO] ==========================================
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable send_redirects (all) — net.ipv4.conf.all.send_redirects = 0 (already compliant)
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable send_redirects (default) — already compliant
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable IPv4 IP forwarding — net.ipv4.ip_forward = 0 (already compliant)
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable accept_source_route (all) — already compliant
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable accept_source_route (default) — already compliant
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable accept_redirects (all) — already compliant
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable accept_redirects (default) — already compliant
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable secure_redirects (all) — already compliant
+[2026-04-24T20:05:01] [COMPLIANT] LH: Disable secure_redirects (default) — already compliant
+[2026-04-24T20:05:01] [COMPLIANT] LH-001: /dev/shm already has noexec,nodev,nosuid
+[2026-04-24T20:05:01] [INFO] ==========================================
+[2026-04-24T20:05:01] [INFO] Hardening Script Completed
+[2026-04-24T20:05:01] [INFO] Changed:   0
+[2026-04-24T20:05:01] [INFO] Compliant: 9
+[2026-04-24T20:05:01] [INFO] Failed:    0
+[2026-04-24T20:05:01] [INFO] ==========================================
+# ^ Second run shows all COMPLIANT — idempotency confirmed

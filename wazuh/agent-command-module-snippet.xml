@@ -1,0 +1,41 @@
+<!--
+  agent-command-module-snippet.xml
+  ==================================
+  Wazuh Agent Configuration — Command Module Snippet
+  Project: Automated Linux Endpoint Hardening with Wazuh
+  Author:  Dimas Qi Ramadhani
+
+  PURPOSE:
+    Add this block inside <ossec_config> in the Wazuh Agent's ossec.conf
+    to configure the Command Module to run the Linux hardening script.
+
+  LOCATION:
+    /var/ossec/etc/ossec.conf (on the Ubuntu endpoint)
+
+  AFTER ADDING:
+    sudo systemctl restart wazuh-agent
+
+  PARAMETER REFERENCE:
+    disabled:       no  → module is active
+    tag:            linux-hardening → label for log correlation
+    command:        full path to the hardening script
+    interval:       12h → run every 12 hours
+    ignore_output:  no  → capture and forward script stdout/stderr
+    run_on_start:   yes → run immediately when agent starts
+    timeout:        120 → kill script if it runs more than 120 seconds
+
+  SECURITY REQUIREMENTS:
+    The script must be owned root:wazuh with permission 750:
+    sudo chown root:wazuh /var/ossec/active-response/bin/linux_hardening.sh
+    sudo chmod 750 /var/ossec/active-response/bin/linux_hardening.sh
+-->
+
+<wodle name="command">
+  <disabled>no</disabled>
+  <tag>linux-hardening</tag>
+  <command>/var/ossec/active-response/bin/linux_hardening.sh</command>
+  <interval>12h</interval>
+  <ignore_output>no</ignore_output>
+  <run_on_start>yes</run_on_start>
+  <timeout>120</timeout>
+</wodle>

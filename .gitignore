@@ -1,0 +1,71 @@
+# Automated Linux Endpoint Hardening with Wazuh — .gitignore
+
+# -----------------------------------------------------------------------
+# CRITICAL: Never commit real hardening output or system data
+# -----------------------------------------------------------------------
+
+# Evidence files generated at runtime (may contain real hostnames/IPs)
+evidence/
+*.evidence.txt
+linux-hardening-evidence-*.txt
+
+# Real hardening logs (contain real system state)
+*.hardening.log
+wazuh-linux-hardening.log
+
+# Backup files created by hardening scripts (real config data)
+*.bak_wazuh_*
+/var/backups/wazuh-hardening/
+
+# Real SCA exports from production systems
+real-sca-results/
+production-sca/
+*.real.json
+
+# Real ossec.conf with internal configuration
+ossec.conf.real
+ossec.conf.production
+
+# -----------------------------------------------------------------------
+# OS-specific
+# -----------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# -----------------------------------------------------------------------
+# Editor and IDE
+# -----------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.bak
+
+# -----------------------------------------------------------------------
+# Credentials and secrets (never commit these)
+# -----------------------------------------------------------------------
+.env
+.env.*
+*.key
+*.pem
+secrets/
+credentials/
+
+# -----------------------------------------------------------------------
+# Python (if tooling added later)
+# -----------------------------------------------------------------------
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# -----------------------------------------------------------------------
+# Temp files
+# -----------------------------------------------------------------------
+tmp/
+temp/
+*.tmp

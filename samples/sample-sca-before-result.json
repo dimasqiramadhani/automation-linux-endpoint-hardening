@@ -1,0 +1,67 @@
+{
+  "_comment": "DUMMY DATA — Sample SCA result BEFORE hardening. All hostnames are fictional.",
+  "timestamp": "2026-04-24T08:00:00.000+0000",
+  "agent": {
+    "id": "003",
+    "name": "ubuntu-lab-01",
+    "ip": "10.0.0.30"
+  },
+  "data": {
+    "sca": {
+      "type": "summary",
+      "scan_id": "1745481600",
+      "policy": "CIS Ubuntu Linux 24.04 LTS Benchmark",
+      "policy_id": "cis_ubuntu24_04",
+      "score": 44,
+      "total_checks": 280,
+      "passed": 100,
+      "failed": 127,
+      "not_applicable": 53,
+      "invalid": 0,
+      "start_scan": "2026-04-24T08:00:00Z",
+      "end_scan": "2026-04-24T08:01:35Z",
+      "failed_check_examples": [
+        {
+          "id": "5001",
+          "title": "Ensure noexec option set on /dev/shm partition",
+          "result": "failed"
+        },
+        {
+          "id": "5002",
+          "title": "Ensure nosuid option set on /dev/shm partition",
+          "result": "failed"
+        },
+        {
+          "id": "5003",
+          "title": "Ensure nodev option set on /dev/shm partition",
+          "result": "failed"
+        },
+        {
+          "id": "5010",
+          "title": "Ensure packet redirect sending is disabled",
+          "result": "failed"
+        },
+        {
+          "id": "5011",
+          "title": "Ensure IP forwarding is disabled",
+          "result": "failed"
+        },
+        {
+          "id": "5012",
+          "title": "Ensure source routed packets are not accepted",
+          "result": "failed"
+        },
+        {
+          "id": "5013",
+          "title": "Ensure ICMP redirects are not accepted",
+          "result": "failed"
+        },
+        {
+          "id": "5014",
+          "title": "Ensure secure ICMP redirects are not accepted",
+          "result": "failed"
+        }
+      ]
+    }
+  }
+}

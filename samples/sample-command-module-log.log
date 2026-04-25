@@ -1,0 +1,23 @@
+# DUMMY DATA — Sample Wazuh Command Module log output
+# Tag: linux-hardening | Host: ubuntu-lab-01 (dummy)
+
+2026-04-24T08:05:00 wazuh-modulesd:command(tag: linux-hardening) Starting command execution
+2026-04-24T08:05:00 wazuh-modulesd:command(tag: linux-hardening) Executing: /var/ossec/active-response/bin/linux_hardening.sh
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [INFO] Wazuh Linux Hardening Script Started
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [INFO] Host: ubuntu-lab-01
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [INFO] Backup created: /var/backups/wazuh-hardening/sysctl.conf.bak_20260424_080501
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [INFO] Backup created: /var/backups/wazuh-hardening/fstab.bak_20260424_080501
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable send_redirects (all) — net.ipv4.conf.all.send_redirects set to 0 (was: 1)
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable send_redirects (default) — net.ipv4.conf.default.send_redirects set to 0 (was: 1)
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable IPv4 IP forwarding — net.ipv4.ip_forward set to 0 (was: 1)
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable accept_source_route (all) — set to 0 (was: 1)
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable accept_source_route (default) — set to 0 (was: 1)
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable accept_redirects (all) — set to 0 (was: 1)
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable accept_redirects (default) — set to 0 (was: 1)
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable secure_redirects (all) — set to 0 (was: 1)
+2026-04-24T08:05:01 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:01] [CHANGED] LH: Disable secure_redirects (default) — set to 0 (was: 1)
+2026-04-24T08:05:02 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:02] [INFO] sysctl config written: /etc/sysctl.d/99-wazuh-hardening.conf
+2026-04-24T08:05:02 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:02] [INFO] sysctl --system applied successfully
+2026-04-24T08:05:02 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:02] [CHANGED] LH-001: /dev/shm remounted with noexec,nodev,nosuid
+2026-04-24T08:05:02 wazuh-modulesd:command(tag: linux-hardening) Output: [2026-04-24T08:05:02] [INFO] Changed: 9 | Compliant: 0 | Failed: 0
+2026-04-24T08:05:02 wazuh-modulesd:command(tag: linux-hardening) Command completed with exit code: 0

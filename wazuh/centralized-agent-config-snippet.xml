@@ -1,0 +1,51 @@
+<!--
+  centralized-agent-config-snippet.xml
+  =======================================
+  Wazuh Manager — Centralized Agent Group Configuration
+  Project: Automated Linux Endpoint Hardening with Wazuh
+  Author:  Dimas Qi Ramadhani
+
+  PURPOSE:
+    Use this to centrally push the Command Module configuration
+    to all agents in the 'ubuntu_hardening' group via agent.conf.
+
+  LOCATION (on Wazuh Manager):
+    /var/ossec/etc/shared/ubuntu_hardening/agent.conf
+
+  SETUP:
+    1. Create agent group:
+       sudo /var/ossec/bin/agent_groups -a -g ubuntu_hardening
+
+    2. Add Ubuntu agent to group (replace <id>):
+       sudo /var/ossec/bin/agent_groups -a -i <id> -g ubuntu_hardening
+
+    3. Copy this file as agent.conf:
+       sudo cp centralized-agent-config-snippet.xml \
+         /var/ossec/etc/shared/ubuntu_hardening/agent.conf
+
+    4. Restart Wazuh Manager:
+       sudo systemctl restart wazuh-manager
+
+  PREREQUISITE:
+    The hardening script must ALREADY exist on each endpoint at:
+    /var/ossec/active-response/bin/linux_hardening.sh
+    with ownership root:wazuh and permission 750.
+
+  NOTE:
+    Centralized config pushes the wodle configuration only.
+    The script itself must be deployed separately to each endpoint.
+-->
+
+<agent_config>
+  <!-- Command Module: Linux Endpoint Hardening -->
+  <!-- Applies to all agents in the ubuntu_hardening group -->
+  <wodle name="command">
+    <disabled>no</disabled>
+    <tag>linux-hardening</tag>
+    <command>/var/ossec/active-response/bin/linux_hardening.sh</command>
+    <interval>12h</interval>
+    <ignore_output>no</ignore_output>
+    <run_on_start>yes</run_on_start>
+    <timeout>120</timeout>
+  </wodle>
+</agent_config>

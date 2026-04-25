@@ -1,0 +1,81 @@
+{
+  "_comment": "DUMMY DATA — Sample SCA result AFTER hardening. All hostnames are fictional.",
+  "timestamp": "2026-04-24T20:00:00.000+0000",
+  "agent": {
+    "id": "003",
+    "name": "ubuntu-lab-01",
+    "ip": "10.0.0.30"
+  },
+  "data": {
+    "sca": {
+      "type": "summary",
+      "scan_id": "1745524800",
+      "policy": "CIS Ubuntu Linux 24.04 LTS Benchmark",
+      "policy_id": "cis_ubuntu24_04",
+      "score": 53,
+      "total_checks": 280,
+      "passed": 135,
+      "failed": 92,
+      "not_applicable": 53,
+      "invalid": 0,
+      "start_scan": "2026-04-24T20:00:00Z",
+      "end_scan": "2026-04-24T20:01:38Z",
+      "score_delta": "+9",
+      "improved_checks": [
+        {
+          "id": "5001",
+          "title": "Ensure noexec option set on /dev/shm partition",
+          "previous_result": "failed",
+          "result": "passed"
+        },
+        {
+          "id": "5002",
+          "title": "Ensure nosuid option set on /dev/shm partition",
+          "previous_result": "failed",
+          "result": "passed"
+        },
+        {
+          "id": "5003",
+          "title": "Ensure nodev option set on /dev/shm partition",
+          "previous_result": "failed",
+          "result": "passed"
+        },
+        {
+          "id": "5010",
+          "title": "Ensure packet redirect sending is disabled",
+          "previous_result": "failed",
+          "result": "passed"
+        },
+        {
+          "id": "5011",
+          "title": "Ensure IP forwarding is disabled",
+          "previous_result": "failed",
+          "result": "passed"
+        },
+        {
+          "id": "5012",
+          "title": "Ensure source routed packets are not accepted",
+          "previous_result": "failed",
+          "result": "passed"
+        },
+        {
+          "id": "5013",
+          "title": "Ensure ICMP redirects are not accepted",
+          "previous_result": "failed",
+          "result": "passed"
+        },
+        {
+          "id": "5014",
+          "title": "Ensure secure ICMP redirects are not accepted",
+          "previous_result": "failed",
+          "result": "passed"
+        }
+      ],
+      "remaining_failed_example": [
+        {"id": "5020", "title": "Ensure SSH root login is disabled"},
+        {"id": "5030", "title": "Ensure auditd is installed"},
+        {"id": "5040", "title": "Ensure password reuse is limited"}
+      ]
+    }
+  }
+}
