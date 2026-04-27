@@ -440,5 +440,4 @@ Lab and portfolio use only. All hardening scripts are designed for isolated lab 
 
 ## 👤 Author
 
-**Dimas Qi Ramadhani** — Cybersecurity Engineer | Detection Engineering · Linux Hardening · SIEM  
-GitHub: [@dimasqiramadhani](https://github.com/dimasqiramadhani)
+**Dimasqi Ramadhani** · Security Engineer
