@@ -4,6 +4,10 @@
 
 A lab-based Linux hardening automation project that uses **Wazuh Security Configuration Assessment (SCA)** to measure baseline security posture, identifies CIS benchmark failures on an Ubuntu 24.04 endpoint, and automatically applies targeted remediations via the **Wazuh Command Module** — tracking before-and-after SCA score improvement with full evidence documentation.
 
+> **Lab Executed:** Apr 27, 2026 · Host: `ubuntu-server` · Ubuntu 24.04.4 LTS · Wazuh v4.14.5 · VMware Workstation  
+> SCA score improved from **50% → 51%** with 5 controls remediated via Wazuh Command Module.  
+> Idempotency confirmed across 2 execution cycles (Run 1: Changed 8 · Run 2: Changed 0).
+
 ---
 
 ## 📌 Why This Project Matters
@@ -34,7 +38,7 @@ This project shows how to:
 | Wazuh Command Module | Executes hardening script automatically on schedule |
 | linux_hardening.sh | Idempotent hardening script — sysctl + mount options |
 | validate_hardening_state.sh | Manual validation evidence collection |
-| CIS Ubuntu 24.04 Policy | Built-in Wazuh SCA policy for benchmark comparison |
+| CIS Ubuntu 24.04 Policy | Built-in Wazuh SCA policy (cis_ubuntu24-04.yml) |
 
 ---
 
@@ -107,10 +111,9 @@ flowchart TD
 ## 📁 Repository Structure
 
 ```
-linux-hardening-lab/
+Automation Linux Endpoint Hardening/
 ├── README.md
 ├── LICENSE
-├── .gitignore
 ├── docs/
 │   ├── 01-overview.md
 │   ├── 02-lab-architecture.md
@@ -152,83 +155,259 @@ linux-hardening-lab/
 │   ├── sample-linux-hardening-assessment-report.md
 │   └── sample-before-after-sca-score-report.md
 └── screenshots/
-    └── README.md
+    ├── README.md
+    └── *.png
 ```
 
 ---
 
 ## ⚙️ Requirements
 
-- Wazuh Server v4.x (OVA or self-hosted)
-- Ubuntu 24.04 LTS endpoint with Wazuh Agent enrolled
+- Wazuh Server v4.x (OVA or self-hosted) — *lab used v4.14.5*
+- Ubuntu 24.04 LTS endpoint with Wazuh Agent enrolled — *lab used Ubuntu 24.04.4 LTS*
 - Root / sudo access on both endpoint and Wazuh Manager
 - CIS Ubuntu 24.04 SCA policy available in Wazuh (built-in)
+- `wazuh_command.remote_commands=1` set in `/var/ossec/etc/local_internal_options.conf`
 - VM snapshot taken **before** running hardening scripts
-- Isolated lab network
+- Isolated lab network (VMware host-only or NAT)
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Step-by-Step Guide
 
-### 1. Take VM Snapshot First
+### Step 1 — Take VM Snapshot
 
-```bash
-# Always snapshot before hardening — rollback depends on it
-# (Done via your hypervisor: VirtualBox / VMware / KVM)
-```
-
-### 2. Check Baseline SCA Score
-
-Navigate to: **Wazuh Dashboard → Endpoint Security → Configuration Assessment**  
-Select the Ubuntu endpoint → review initial score and failed checks.
-
-### 3. Deploy Hardening Script
+Sebelum melakukan apapun, ambil snapshot VM endpoint sebagai rollback plan utama.
 
 ```bash
-# On the Ubuntu endpoint
-sudo cp scripts/linux_hardening.sh /var/ossec/active-response/bin/
-sudo chown root:wazuh /var/ossec/active-response/bin/linux_hardening.sh
-sudo chmod 750 /var/ossec/active-response/bin/linux_hardening.sh
+# Dilakukan via hypervisor GUI
+# VMware: VM → Snapshot → Take Snapshot
+# Beri nama: pre-hardening-baseline-YYYY-MM-DD
+# Deskripsi: Baseline SCA <score>%, <jumlah failed> failed, before hardening
 ```
 
-### 4. Run Dry Run First
-
-```bash
-sudo bash scripts/linux_hardening_dry_run.sh
-```
-
-### 5. Configure Command Module
-
-Add the snippet from `wazuh/agent-command-module-snippet.xml` to `/var/ossec/etc/ossec.conf`, then:
-
-```bash
-sudo systemctl restart wazuh-agent
-```
-
-### 6. Validate Hardening
-
-```bash
-sudo bash scripts/validate_hardening_state.sh
-```
-
-### 7. Review Updated SCA Score
-
-Wait for next SCA scan interval or restart the Wazuh Agent to trigger `scan_on_start`.  
-Compare before/after in the Dashboard.
+> ⚠️ Jangan lewatkan langkah ini. Snapshot adalah rollback plan paling cepat dan deterministik kalau hardening menghasilkan efek samping yang tidak terduga.
 
 ---
 
-## 📊 Sample Before/After SCA Score (Lab)
+### Step 2 — Enable Remote Commands di Wazuh Agent
 
-> All values below are example lab results — not universal benchmarks.
+Wazuh Agent secara default memblok eksekusi command lokal (security default). Aktifkan sebelum mengkonfigurasi Command Module.
+
+```bash
+# Di Ubuntu endpoint, sebagai root
+echo "wazuh_command.remote_commands=1" >> /var/ossec/etc/local_internal_options.conf
+
+# Verifikasi
+grep "remote_commands" /var/ossec/etc/local_internal_options.conf
+# Expected: wazuh_command.remote_commands=1
+```
+
+---
+
+### Step 3 — Cek Baseline SCA Score
+
+Trigger SCA scan dan catat score awal sebagai "before evidence".
+
+```bash
+# Restart agent untuk trigger scan_on_start
+systemctl restart wazuh-agent
+
+# Tunggu ~2-3 menit, cek apakah scan sudah selesai
+grep "sca:" /var/ossec/logs/ossec.log | tail -5
+# Cari baris: "Security Configuration Assessment scan finished"
+```
+
+Buka Wazuh Dashboard dan catat baseline:
+```
+Endpoint Security → Configuration Assessment
+→ Pilih agent → CIS Ubuntu Linux 24.04 LTS Benchmark
+→ Catat: Score, Passed, Failed, Not Applicable
+→ Screenshot halaman summary (before evidence)
+→ Search per-control target untuk konfirmasi statusnya Failed
+```
+
+---
+
+### Step 4 — Deploy Hardening Script
+
+Copy script ke direktori Active Response Wazuh dengan permission yang ketat.
+
+```bash
+# Dari folder project, sebagai root
+cp scripts/linux_hardening.sh /var/ossec/active-response/bin/
+
+# Set ownership dan permission — WAJIB tepat
+chown root:wazuh /var/ossec/active-response/bin/linux_hardening.sh
+chmod 750 /var/ossec/active-response/bin/linux_hardening.sh
+
+# Verifikasi — output HARUS: -rwxr-x--- 1 root wazuh
+ls -la /var/ossec/active-response/bin/linux_hardening.sh
+```
+
+> **Kenapa `root:wazuh 750`?** Owner `root` memastikan hanya root yang bisa modifikasi script. Group `wazuh` memberi Wazuh Agent hak eksekusi. Permission `750` memastikan tidak ada user lain yang bisa baca atau jalankan script tersebut.
+
+---
+
+### Step 5 — Dry Run (Wajib Sebelum Apply)
+
+Preview perubahan yang akan dilakukan script **tanpa apply apapun** ke sistem.
+
+```bash
+# Jalankan dry run (read-only)
+bash scripts/linux_hardening_dry_run.sh
+
+# Simpan output sebagai evidence
+bash scripts/linux_hardening_dry_run.sh | tee ~/dry-run-evidence-$(date +%F).log
+```
+
+Review output — pastikan:
+- Hanya 6 control LH-001 s/d LH-006 yang disebut
+- Tidak ada perubahan SSH, user management, atau firewall rules
+- Jumlah NON-COMPLIANT sesuai dengan baseline yang dicatat di Step 3
+
+---
+
+### Step 6 — Configure Wazuh Command Module
+
+Backup config lama, lalu tambahkan wodle block untuk mengaktifkan scheduled execution.
+
+```bash
+# Backup ossec.conf
+cp /var/ossec/etc/ossec.conf /var/ossec/etc/ossec.conf.bak
+
+# Edit config
+nano /var/ossec/etc/ossec.conf
+```
+
+Tambahkan blok berikut **tepat sebelum** tag penutup `</ossec_config>`:
+
+```xml
+<wodle name="command">
+  <disabled>no</disabled>
+  <tag>linux-hardening</tag>
+  <command>/var/ossec/active-response/bin/linux_hardening.sh</command>
+  <interval>12h</interval>
+  <ignore_output>no</ignore_output>
+  <run_on_start>yes</run_on_start>
+  <timeout>120</timeout>
+</wodle>
+```
+
+> Snippet lengkap dengan komentar tersedia di `wazuh/agent-command-module-snippet.xml`.
+
+Parameter penting:
+- `interval: 12h` — script jalan setiap 12 jam untuk correct drift
+- `run_on_start: yes` — script langsung jalan saat agent start/restart
+- `timeout: 120` — script di-kill jika jalan lebih dari 120 detik
+
+---
+
+### Step 7 — Restart Agent & Verifikasi Eksekusi
+
+Karena `run_on_start: yes`, script langsung jalan otomatis setelah restart.
+
+```bash
+systemctl restart wazuh-agent
+systemctl status wazuh-agent --no-pager
+# Expected: Active: active (running)
+
+# Tunggu 30 detik, cek hardening log
+tail -50 /var/log/wazuh-linux-hardening.log
+# Expected: baris [CHANGED] per sysctl + summary "Changed: X, Failed: 0"
+
+# Cek juga agent log untuk korelasi Command Module
+grep "linux-hardening" /var/ossec/logs/ossec.log | tail -10
+```
+
+---
+
+### Step 8 — Validate Hardening State
+
+Jalankan script validasi untuk cross-check independen bahwa semua control sudah applied.
+
+```bash
+# Jalankan validasi
+bash scripts/validate_hardening_state.sh
+# Expected: semua baris ✅ PASS
+
+# Simpan output sebagai evidence
+bash scripts/validate_hardening_state.sh | tee ~/validation-after-$(date +%F).log
+```
+
+Cross-check manual:
+
+```bash
+# Cek sysctl values langsung
+sysctl net.ipv4.conf.all.send_redirects    # harus: 0
+sysctl net.ipv4.conf.all.accept_redirects  # harus: 0
+sysctl net.ipv4.conf.all.secure_redirects  # harus: 0
+
+# Cek /dev/shm mount options
+mount | grep shm
+# Expected: ...nosuid,nodev,noexec...
+
+# Cek file persistent config terbuat
+cat /etc/sysctl.d/99-wazuh-hardening.conf
+```
+
+---
+
+### Step 9 — Trigger SCA Re-scan & Bandingkan Score
+
+```bash
+# Restart agent untuk trigger scan_on_start
+systemctl restart wazuh-agent
+
+# Tunggu scan selesai (~2-3 menit)
+grep "sca:" /var/ossec/logs/ossec.log | tail -5
+# Expected: "Security Configuration Assessment scan finished"
+```
+
+Buka Dashboard dan bandingkan:
+```
+Endpoint Security → Configuration Assessment → <nama agent>
+→ Catat score baru
+→ Screenshot halaman summary (after evidence)
+→ Search setiap control target — konfirmasi status changed ke Passed
+```
+
+---
+
+### Step 10 — Collect Evidence & Generate Report
+
+```bash
+# Collect comprehensive evidence (system info, sysctl, mount, log, fstab, backup)
+cd /path/to/project
+bash scripts/collect_sca_evidence.sh
+ls -la evidence/
+# Output: evidence/linux-hardening-evidence-<timestamp>.txt
+
+# Hash script untuk integrity proof
+sha256sum /var/ossec/active-response/bin/linux_hardening.sh
+```
+
+Update laporan dengan data lab aktual:
+- `reports/sample-before-after-sca-score-report.md` — isi angka before/after aktual
+- `reports/sample-linux-hardening-assessment-report.md` — isi semua section dengan data lab
+- `screenshots/` — masukkan semua screenshot sesuai panduan di `screenshots/README.md`
+
+---
+
+## 📊 Before/After SCA Score (Lab Results)
+
+> Hasil lab aktual — dijalankan pada `ubuntu-server` · Apr 27, 2026 · CIS Ubuntu Linux 24.04 LTS Benchmark v1.0.0
 
 | Metric | Before Hardening | After Hardening | Change |
 |--------|-----------------|----------------|--------|
-| SCA Score | 44% | 53% | +9% |
-| Passed Checks | 100 | 135 | +35 |
-| Failed Checks | 127 | 92 | −35 |
-| Not Applicable | 53 | 53 | — |
-| Remediated Controls | 0 | 6 | +6 |
+| SCA Score | 50% | 51% | +1% |
+| Passed Checks | 119 | 123 | +4 |
+| Failed Checks | 118 | 114 | −4 |
+| Not Applicable | 42 | 42 | — |
+| Remediated Controls | 0 | 5 | +5 |
+| Script Executions | — | 2 (idempotent) | — |
+
+> **Note:** Check 35612 (`ensure icmp redirects are not accepted`) masih Failed karena CIS policy mengevaluasi interface IPv6 (`net.ipv6.conf.*`) dan loopback (`lo`) yang belum di-cover script ini. Detail dan rencana fix tersedia di `docs/16-improvement-ideas.md`.
 
 ---
 
@@ -255,7 +434,7 @@ Compare before/after in the Dashboard.
 
 ## ⚖️ Disclaimer
 
-Lab and portfolio use only. All hardening scripts are designed for isolated lab environments. Do not apply to production endpoints without change management approval, application compatibility testing, system owner authorization, and a validated rollback plan. All sample data uses dummy hostnames (`ubuntu-lab-01`, `10.0.0.30`).
+Lab and portfolio use only. All hardening scripts are designed for isolated lab environments. Do not apply to production endpoints without change management approval, application compatibility testing, system owner authorization, and a validated rollback plan.
 
 ---
 

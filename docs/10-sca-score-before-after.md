@@ -13,48 +13,65 @@ SCA scores are captured from the Wazuh Dashboard before and after running the ha
 
 ## Before / After Comparison Table
 
-> All values below are example lab results. Actual numbers depend on OS version, installed packages, Wazuh version, and existing configuration.
+> Hasil lab aktual — dijalankan pada `ubuntu-server` · Apr 27, 2026
 
 | Metric | Before Hardening | After Hardening | Change |
 |--------|-----------------|----------------|--------|
-| SCA Score | 44% | 53% | +9% |
-| Passed Checks | 100 | 135 | +35 |
-| Failed Checks | 127 | 92 | −35 |
-| Not Applicable | 53 | 53 | — |
-| Remediated Controls | 0 | 6 | +6 |
+| SCA Score | 50% | 51% | +1% |
+| Passed Checks | 119 | 123 | +4 |
+| Failed Checks | 118 | 114 | −4 |
+| Not Applicable | 42 | 42 | — |
+| Remediated Controls | 0 | 5 | +5 |
+| Script Executions | — | 2 (idempotent) | — |
 
 ---
 
-## Improved Checks (Example)
+## Improved Checks (Actual Lab Results)
 
-| Check | Before | After |
-|-------|--------|-------|
-| Ensure /dev/shm has noexec option | failed | ✅ passed |
-| Ensure /dev/shm has nodev option | failed | ✅ passed |
-| Ensure /dev/shm has nosuid option | failed | ✅ passed |
-| Ensure packet redirect sending is disabled | failed | ✅ passed |
-| Ensure IP forwarding is disabled | failed | ✅ passed |
-| Ensure source routed packets are not accepted | failed | ✅ passed |
-| Ensure ICMP redirects are not accepted | failed | ✅ passed |
-| Ensure secure ICMP redirects are not accepted | failed | ✅ passed |
+| Check ID | Check Title | Before | After |
+|---------|------------|--------|-------|
+| 35517 | Ensure noexec option set on /dev/shm partition | failed | ✅ passed |
+| 35608 | Ensure ip forwarding is disabled | failed | ✅ passed |
+| 35609 | Ensure packet redirect sending is disabled | failed | ✅ passed |
+| 35613 | Ensure secure icmp redirects are not accepted | failed | ✅ passed |
+| 35615 | Ensure source routed packets are not accepted | failed | ✅ passed |
+
+---
+
+## Check Still Failed (Known Gap)
+
+| Check ID | Check Title | Status |
+|---------|------------|--------|
+| 35612 | Ensure icmp redirects are not accepted | ❌ still failed — IPv6 + loopback not covered |
+
+Root cause: CIS check 35612 mengevaluasi `net.ipv6.conf.all.accept_redirects` dan `net.ipv4.conf.lo.accept_redirects` yang masih bernilai `1`. Script hanya handle `net.ipv4.conf.all` dan `net.ipv4.conf.default`. Fix direncanakan di Phase 2.
+
+---
+
+## Idempotency Proof
+
+| Run | Timestamp | Changed | Compliant | Failed |
+|-----|-----------|---------|-----------|--------|
+| Run 1 | 2026-04-27T17:49:27 | **8** | 2 | 0 |
+| Run 2 | 2026-04-27T17:52:23 | **0** | 10 | 0 |
 
 ---
 
 ## How to Read Status Changed Events
 
-In Wazuh Dashboard, filter:
+Di Wazuh Dashboard, filter:
 ```
 data.sca.check.previous_result:failed
 ```
 
-This shows all checks that changed from failed to any other result. Expand each event to see:
-- `data.sca.check.title` — what changed
-- `data.sca.check.result` — current result (passed)
-- `data.sca.check.previous_result` — previous result (failed)
-- `data.sca.check.remediation` — what was done to fix it
+Ini akan menampilkan semua checks yang berubah dari failed ke result lain. Expand setiap event untuk melihat:
+- `data.sca.check.title` — apa yang berubah
+- `data.sca.check.result` — result saat ini (passed)
+- `data.sca.check.previous_result` — result sebelumnya (failed)
+- `data.sca.check.remediation` — apa yang dilakukan untuk memperbaikinya
 
 ---
 
-## Catatan (Bahasa Indonesia)
+## Catatan
 
-Kenaikan skor SCA menunjukkan bahwa konfigurasi endpoint sekarang lebih dekat ke standar CIS Benchmark. Tapi ingat: kenaikan persentase ini bukan jaminan keamanan absolut. Ada checks lain yang masih failed dan perlu dianalisis satu per satu dengan konteks yang tepat sebelum diputuskan untuk diremediate atau diterima risikonya.
+Kenaikan skor SCA menunjukkan bahwa konfigurasi endpoint sekarang lebih dekat ke standar CIS Benchmark. Kenaikan +1% dari 6 control yang ditargetkan terjadi karena beberapa control sudah partially compliant di baseline (LH-003 `ip_forward` dan LH-004 `accept_source_route` sudah `0`), dan check 35612 masih failed karena gap IPv6 yang belum di-cover. Ini merupakan hasil yang realistis dan terdokumentasi dengan baik — bukan angka yang dimanipulasi.

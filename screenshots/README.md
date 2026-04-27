@@ -1,86 +1,57 @@
-# Screenshots Guide
+# Screenshots
 
-This directory contains portfolio evidence screenshots from the Automated Linux Endpoint Hardening with Wazuh project.
-
----
-
-## Required Screenshots
-
-### 1. `01-agent-active.png`
-**Navigate to:** Wazuh Dashboard → Agents  
-**Show:** `ubuntu-lab-01` with **Active** status (green)
-
-### 2. `02-ubuntu-endpoint-details.png`
-**Navigate to:** Wazuh Dashboard → Agents → click ubuntu-lab-01  
-**Show:** Agent detail: OS version, IP, last keep alive
-
-### 3. `03-initial-sca-score.png`
-**Navigate to:** Endpoint Security → Configuration Assessment → ubuntu-lab-01 → CIS Ubuntu 24.04  
-**Show:** Initial score (e.g. 44%), passed/failed/N-A counts  
-**Why:** Baseline evidence before hardening
-
-### 4. `04-failed-check-dev-shm.png`
-**Navigate to:** Same — click on `/dev/shm noexec` check  
-**Show:** Full check detail: title, rationale, remediation, compliance  
-**Why:** Evidence of pre-hardening state
-
-### 5. `05-failed-check-redirect.png`
-**Navigate to:** Same — click on "packet redirect sending" check  
-**Show:** Full check detail with rationale and CIS reference  
-**Why:** Pre-hardening evidence for network control
-
-### 6. `06-script-file-location.png`
-**Command:** `ls -la /var/ossec/active-response/bin/ | grep hardening`  
-**Show:** linux_hardening.sh listed with correct path
-
-### 7. `07-script-permissions.png`
-**Command:** `stat /var/ossec/active-response/bin/linux_hardening.sh`  
-**Show:** Owner: root | Group: wazuh | Mode: 0750
-
-### 8. `08-command-module-config.png`
-**Command:** `grep -A10 "linux-hardening" /var/ossec/etc/ossec.conf`  
-**Show:** The wodle block with all parameters visible
-
-### 9. `09-agent-restart.png`
-**Command:** `sudo systemctl status wazuh-agent`  
-**Show:** Active (running) status after restart
-
-### 10. `10-hardening-script-log.png`
-**Command:** `sudo tail -30 /var/log/wazuh-linux-hardening.log`  
-**Show:** CHANGED entries for all 9 sysctl parameters and /dev/shm
-
-### 11. `11-validate-hardening-state.png`
-**Command:** `sudo bash scripts/validate_hardening_state.sh`  
-**Show:** Table with all controls showing ✅ PASS
-
-### 12. `12-updated-sca-score.png`
-**Navigate to:** Endpoint Security → Configuration Assessment → ubuntu-lab-01  
-**Show:** Updated score (e.g. 53%), improved counts  
-**Why:** Post-hardening evidence
-
-### 13. `13-sca-check-changed.png`
-**Filter:** `data.sca.check.previous_result:failed`  
-**Show:** Status changed events with `previous_result: failed` → `result: passed`
-
-### 14. `14-dashboard-sca-filter.png`
-**Navigate to:** Threat Hunting / Security Events  
-**Filter:** `rule.groups:sca AND agent.name:ubuntu-lab-01`  
-**Show:** SCA events list
-
-### 15. `15-final-report-github.png`
-**Navigate to:** `reports/sample-linux-hardening-assessment-report.md` in GitHub  
-**Show:** Report rendered with before/after comparison table visible
+Lab execution screenshots untuk project **Automated Linux Endpoint Hardening with Wazuh**.  
+Diambil pada: **Apr 27, 2026** · Host: `ubuntu-server` · Policy: CIS Ubuntu Linux 24.04 LTS Benchmark v1.0.0
 
 ---
 
-## Screenshot Tips
+## Deployment & Configuration Evidence
 
-- Resolution: 1920×1080
-- **Redact hostname, IP, and any internal identifiers** before publishing
-- For terminal output, use a dark theme for readability
-- For check detail screenshots, expand the full check panel to show rationale + compliance
-- Capture both the before and after SCA score screenshots in the same Dashboard location for clean comparison
+| File | Deskripsi |
+|------|-----------|
+| `Wazuh Remote Command Enable.png` | Setting `wazuh_command.remote_commands=1` di `local_internal_options.conf` |
+| `Hardening Script Deploy.png` | Script `linux_hardening.sh` ter-deploy dengan permission `root:wazuh 750` |
+| `Woodle Agent Ossec Config.png` | Wodle command block yang sudah ditambahkan ke `ossec.conf` |
 
 ---
 
-> Place actual PNG/JPG files here using the naming convention above.
+## Hardening Execution Evidence
+
+| File | Deskripsi |
+|------|-----------|
+| `Hardening Log Before.png` | Dry run output — menunjukkan 8 controls NON-COMPLIANT sebelum hardening |
+| `Hardening Log.png` | Hardening log aktual — `[CHANGED]` entries + summary `Changed: 8, Failed: 0` |
+| `Validasi Hardening Status.png` | Output `validate_hardening_state.sh` — semua 12 baris ✅ PASS |
+
+---
+
+## Before Hardening (Baseline — Score 50%)
+
+| File | Deskripsi |
+|------|-----------|
+| `Security Configuration Assessment - Before.png` | SCA dashboard — Score: 50%, Passed: 119, Failed: 118, N/A: 42 |
+| `Security Configuration Assessment - dev-shm Before.png` | /dev/shm checks — 35514/35515/35516 Passed, 35517 (noexec) Failed |
+| `Security Configuration Assessment - icmp redirects Before.png` | Check 35609, 35612, 35613 — semua Failed |
+| `Security Configuration Assessment - send_redirects Before.png` | Check 35609 (send_redirects) — Failed |
+| `Security Configuration Assessment - secure icmp Before.png` | Check 35613 (secure icmp) — Failed |
+| `Security Configuration Assessment - source routed Before.png` | Check 35615 (source routed) — Failed |
+
+---
+
+## After Hardening (Score 51%)
+
+| File | Deskripsi |
+|------|-----------|
+| `Security Configuration Assessment - After.png` | SCA dashboard — Score: 51%, Passed: 123, Failed: 114, N/A: 42 |
+| `Security Configuration Assessment - dev-shm After.png` | /dev/shm checks — semua 4 checks Passed (termasuk 35517 noexec) ✅ |
+| `Security Configuration Assessment - icmp redirects After.png` | 35609 Passed ✅, 35612 masih Failed (IPv6 gap), 35613 Passed ✅ |
+| `Security Configuration Assessment - send_redirects After.png` | Check 35609 (send_redirects) — Passed ✅ |
+| `Security Configuration Assessment - secure icmp After.png` | Check 35613 (secure icmp) — Passed ✅ |
+| `Security Configuration Assessment - source routed After.png` | Check 35615 (source routed) — Passed ✅ |
+
+---
+
+## Catatan
+
+- Check **35612** (`accept_redirects`) masih Failed setelah hardening. Root cause: CIS policy mengevaluasi IPv6 interfaces (`net.ipv6.conf.*`) dan loopback (`lo`) yang tidak di-cover script. Detail di `docs/16-improvement-ideas.md`.
+- Semua screenshot diambil langsung dari terminal dan Wazuh Dashboard tanpa editing.

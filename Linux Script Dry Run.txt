@@ -1,0 +1,39 @@
+root@ubnsrv-agent:/home/ecustomer/automation-linux-endpoint-hardening# bash scripts/linux_hardening_dry_run.sh
+============================================================
+ Linux Hardening Dry Run — Pre-Change Review
+ Mode: READ-ONLY (no changes applied)
+ Date: 2026-04-27 23:11:05
+ Host: ubnsrv-agent
+============================================================
+
+--- LH-002: Packet Redirect Sending ---
+  ✅ COMPLIANT    net.ipv4.conf.all.send_redirects              current=0
+  ✅ COMPLIANT    net.ipv4.conf.default.send_redirects          current=0
+
+--- LH-003: IP Forwarding ---
+  ✅ COMPLIANT    net.ipv4.ip_forward                           current=0
+
+--- LH-004: Source Routed Packets ---
+  ✅ COMPLIANT    net.ipv4.conf.all.accept_source_route         current=0
+  ✅ COMPLIANT    net.ipv4.conf.default.accept_source_route     current=0
+
+--- LH-005: ICMP Redirects ---
+  ✅ COMPLIANT    net.ipv4.conf.all.accept_redirects            current=0
+  ✅ COMPLIANT    net.ipv4.conf.default.accept_redirects        current=0
+
+--- LH-006: Secure ICMP Redirects ---
+  ✅ COMPLIANT    net.ipv4.conf.all.secure_redirects            current=0
+  ✅ COMPLIANT    net.ipv4.conf.default.secure_redirects        current=0
+
+--- LH-001: /dev/shm Mount Options ---
+  Current /dev/shm options: rw,nosuid,nodev,inode64
+  ❌ noexec — MISSING → would add to /etc/fstab + remount
+  ✅ nodev — present
+  ✅ nosuid — present
+
+============================================================
+ Dry Run Summary
+  Compliant:     9 controls
+  Non-Compliant: 1 controls (would be changed)
+
+  Run to apply: sudo bash linux_hardening.sh
